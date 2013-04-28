@@ -45,6 +45,8 @@ module Thrifty
     private
 
     def with_cache(&blk)
+      raise "No such Thrift file #{thrift_file.inspect}" unless File.exists?(thrift_file)
+
       # There's obviously a race if someone changes the file before
       # the compiler runs, so we capture the sha1 up front so it'll at
       # least be more likely to falsely invalidate the cache.
