@@ -19,8 +19,8 @@ end
 handler = UserStorageServer.new
 processor = UserStorage::Processor.new(handler)
 transport = Thrift::ServerSocket.new(9090)
-transportFactory = Thrift::BufferedTransportFactory.new()
-server = Thrift::SimpleServer.new(processor, transport, transportFactory)
+transport_factory = Thrift::BufferedTransportFactory.new
+server = Thrift::SimpleServer.new(processor, transport, transport_factory)
 
 puts "Booting user storage server..."
 server.serve
