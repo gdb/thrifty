@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Thrifty::VERSION
   gem.authors       = ["Greg Brockman"]
   gem.email         = ["gdb@gregbrockman.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = "Automatically compile Thrift definitions in Ruby"
+  gem.summary       = "Begone manual compilation of Thrift definitions! Thrifty makes it easy to automatically manage your Thrift definitions."
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
