@@ -12,7 +12,7 @@ module Thrifty
   def self.logger
     @logger ||= begin
                   logger = Logger.new(STDOUT)
-                  logger.level = Logger::DEBUG
+                  logger.level = Logger::ERROR
                   logger
                 end
   end
