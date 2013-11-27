@@ -1,21 +1,13 @@
-require 'logger'
 require 'tmpdir'
 
 require 'thrift'
+require 'chalk-log'
 
 require 'thrifty/thrift_file'
 require 'thrifty/version'
 
 module Thrifty
   @thrift_files = {}
-
-  def self.logger
-    @logger ||= begin
-                  logger = Logger.new(STDOUT)
-                  logger.level = Logger::ERROR
-                  logger
-                end
-  end
 
   def self.basedir
     @basedir ||= Dir.tmpdir

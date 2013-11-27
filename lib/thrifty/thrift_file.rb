@@ -4,6 +4,8 @@ require 'rubysh'
 
 module Thrifty
   class ThriftFile
+    include Chalk::Log
+
     attr_reader :thrift_file
 
     def initialize(thrift_file)
@@ -20,7 +22,7 @@ module Thrifty
       $:.unshift(build_directory)
 
       begin
-        Thrifty.logger.info("Requiring #{generated_file.inspect}, generated from #{thrift_file.inspect}")
+        log.info('Requiring', file: generated_file, idl: thrift_file)
         # Global require
         super(generated_file)
       ensure
@@ -30,7 +32,7 @@ module Thrifty
         if $:.first == build_directory
           $:.shift
         else
-          Thrifty.logger.error("Unexpected first element in load path; not removing #{build_directory.inspect}: #{$:.inspect}")
+          log.error('Unexpected first element in load path; not removing', build_directory: build_directory, load_path: $:.inspect)
         end
       end
     end
@@ -55,11 +57,11 @@ module Thrifty
 
       # cached_version will be nil if the cache doesn't exist, so always miss.
       if new_version == cached_version
-        Thrifty.logger.debug("Using cached version")
+        log.debug("Using cached version")
         return
       end
 
-      Thrifty.logger.info("Compiling thrift file #{thrift_file} with SHA1 #{new_version} to #{build_directory}")
+      log.info('Compiling thrift file', file: thrift_file, sha1: new_version, build_directory: build_directory)
       blk.call
 
       File.open(version_file, 'w') {|f| f.write(new_version)}

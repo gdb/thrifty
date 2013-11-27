@@ -17,5 +17,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
   gem.add_dependency 'thrift'
+  # really this is a dep of thin, but the current verison doesn't specify it
+  gem.add_dependency 'thin'
   gem.add_dependency 'rubysh'
+  gem.add_dependency 'chalk-log'
 end
