@@ -6,10 +6,21 @@ module Thrifty
   class ThriftFile
     include Chalk::Log
 
-    attr_reader :thrift_file
+    attr_reader :thrift_file, :options
 
-    def initialize(thrift_file)
+    def initialize(thrift_file, options={})
       @thrift_file = thrift_file
+      @options = options
+    end
+
+    def path
+      path = @thrift_file
+
+      if relative_to = @options[:relative_to]
+        path = File.expand_path(path, File.join(relative_to, '..'))
+      end
+
+      path
     end
 
     def defines?(generated_file)
