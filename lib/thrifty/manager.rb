@@ -1,16 +1,21 @@
 class Thrifty::Manager
+  attr_accessor :build_root
+
   def initialize
     @thrift_files = {}
+    @build_root ||= File.join(Dir.tmpdir, 'thrifty')
   end
 
-  def register(thrift_file, options={})
-    thrift = Thrifty::ThriftFile.new(thrift_file, options)
+  def register(path, options={})
+    thrift_file = Thrifty::ThriftFile.new(self, path, options)
+    thrift_file.validate_existence
 
-    if @thrift_files.include?(thrift.path)
-      raise "File already registered: #{thrift.path}"
+    if @thrift_files.include?(thrift_file.path)
+      raise "File already registered: #{thrift_file.path}"
     end
 
-    @thrift_files[thrift.path] = thrift
+    @thrift_files[thrift_file.path] = thrift_file
+    thrift_file
   end
 
   def require(generated_file)
@@ -25,6 +30,13 @@ class Thrifty::Manager
       definer.require(generated_file)
     else
       raise LoadError, "Ambiguous generated file #{generated_file.inspect} defined in #{definers.map {|definer| definer.thrift_file.inspect}.join(', ')}"
+    end
+  end
+
+  def compile_all
+    @thrift_files.map do |_, thrift_file|
+      built = thrift_file.compile_once
+      [thrift_file, built]
     end
   end
 end

@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'chalk-rake'
+  gem.add_development_dependency 'chalk-tools'
   gem.add_dependency 'thrift'
   # really this is a dep of thin, but the current verison doesn't specify it
   gem.add_dependency 'thin'

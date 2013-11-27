@@ -13,15 +13,9 @@ module Thrifty
     @manager ||= Thrifty::Manager.new
   end
 
-  def self.register(*args, &blk)
-    @manager.register(*args, &blk)
-  end
-
-  def self.require(*args, &blk)
-    @manager.require(*args, &blk)
-  end
-
-  def self.prebuild(*args, &blk)
-    @manager.prebuild(*args, &blk)
+  [:register, :require, :build_root, :compile_all].each do |method|
+    define_singleton_method(method) do |*args, &blk|
+      manager.send(method, *args, &blk)
+    end
   end
 end
