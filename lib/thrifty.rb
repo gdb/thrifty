@@ -13,7 +13,9 @@ module Thrifty
     @manager ||= Thrifty::Manager.new
   end
 
-  [:register, :require, :build_root, :compile_all].each do |method|
+  [
+    :register, :require, :build_root, :build_root=, :compile_all
+  ].each do |method|
     define_singleton_method(method) do |*args, &blk|
       manager.send(method, *args, &blk)
     end
