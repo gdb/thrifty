@@ -16,6 +16,25 @@ GeneratedService.do_things
 
 See the examples directory for a complete working example.
 
+## Precompiling
+
+When using Thrifty in production, you'll likely want to precompile
+your Thrift IDLs. The way I'd recommend doing this is as follows:
+
+In `lib/myapp/thrift.rb`:
+
+```ruby
+require 'thrifty'
+Thrifty.register('my_interface.thrift', relative_to: __FILE__, build_root: 'build')
+```
+
+Your build step will then just be:
+
+```ruby
+require 'myapp/thrift'
+Thrifty.compile_all
+```
+
 ## Caveats
 
 You must have a working thrift compiler on your PATH. (That is, you
@@ -24,7 +43,5 @@ statically check that this is the case.
 
 ## TODO
 
-- Add a precompile mode, similar to how the Rails asset pipeline
-  works.
 - Statically ensure there's a thrift compiler on the PATH.
 - Autorequire of all generated Thrift files?
