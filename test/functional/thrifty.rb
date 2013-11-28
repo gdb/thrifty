@@ -3,6 +3,8 @@ require 'fileutils'
 require 'thrifty'
 require 'chalk-tools'
 
+# TODO: can we get by without quite so much rm -rf'ing?
+
 class Thrifty::DynamicTest < Critic::Functional::Test
   def self.it_isolated(description, &blk)
     method = Chalk::Tools::ClassUtils.generate_method('test block', self, blk)
@@ -24,36 +26,59 @@ class Thrifty::DynamicTest < Critic::Functional::Test
       Thrifty.require('user_storage')
       ThriftyTest::UserStorage
     end
+
+    it_isolated 'build_root defaults to the thrift/thrifty directory' do
+      expected_root = File.expand_path('../_lib/thrift/thrifty', __FILE__)
+      FileUtils.rm_rf(expected_root)
+
+      Thrifty.register('_lib/thrift/service.thrift', relative_to: __FILE__)
+      Thrifty.require('user_storage')
+      ThriftyTest::UserStorage
+
+      assert(File.exists?(expected_root))
+    end
+
+    describe 'without relative_to' do
+      it_isolated 'build_root defaults to Dir.tmpdir/thrifty' do
+        expected_root = File.join(Dir.tmpdir, 'thrifty')
+        FileUtils.rm_rf(expected_root)
+
+        Thrifty.register(File.expand_path('../_lib/thrift/service.thrift', __FILE__))
+        Thrifty.require('user_storage')
+        ThriftyTest::UserStorage
+
+        assert(File.exists?(expected_root))
+      end
+    end
   end
 
   describe 'with a build_root' do
     before do
-      @build_root = File.expand_path('../_lib/thrift/build', __FILE__)
+      @build_root = File.expand_path('../_lib/thrift/thrifty', __FILE__)
       FileUtils.rm_rf(@build_root)
-      assert(!File.exists?(@build_root))
     end
 
     it_isolated 'raises an error if the thrift file does not exist' do
       assert_raises(RuntimeError) do
         Thrifty.register('_lib/thrift/nonexistent.thrift',
           relative_to: __FILE__,
-          build_root: '_lib/thrift/build')
+          build_root: '_lib/thrift/thrifty')
       end
     end
 
     it_isolated 'sets paths appropriately' do
       thrift_file = Thrifty.register('_lib/thrift/service.thrift',
         relative_to: __FILE__,
-        build_root: '_lib/thrift/build')
+        build_root: '_lib/thrift/thrifty')
       assert_equal(File.expand_path('../_lib/thrift/service.thrift', __FILE__),
         thrift_file.path)
-      assert_equal(File.expand_path('../_lib/thrift/build', __FILE__), thrift_file.build_root)
+      assert_equal(File.expand_path('../_lib/thrift/thrifty', __FILE__), thrift_file.build_root)
     end
 
     it_isolated 'can load the service' do
       Thrifty.register('_lib/thrift/service.thrift',
         relative_to: __FILE__,
-        build_root: '_lib/thrift/build')
+        build_root: '_lib/thrift/thrifty')
       Thrifty.require('user_storage')
       ThriftyTest::UserStorage
 
@@ -63,7 +88,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     it_isolated 'builds a given thrift file once' do
       Thrifty.register('_lib/thrift/service.thrift',
         relative_to: __FILE__,
-        build_root: '_lib/thrift/build')
+        build_root: '_lib/thrift/thrifty')
       results = Thrifty.compile_all
       assert_equal(1, results.length)
       assert(results.all? {|_, built| built})
