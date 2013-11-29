@@ -3,7 +3,7 @@ class Thrifty::Manager
 
   def initialize
     @thrift_files = {}
-    @build_root ||= File.join(Dir.tmpdir, 'thrifty')
+    @build_root ||= File.join(Dir.tmpdir, 'build-thrifty')
   end
 
   def register(path, options={})

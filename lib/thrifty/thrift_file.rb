@@ -70,7 +70,7 @@ class Thrifty::ThriftFile
     if build_root = @options[:build_root]
       expand_relative_path(build_root)
     elsif @options[:relative_to]
-      File.join(File.dirname(path), 'thrifty')
+      File.join(File.dirname(path), 'build-thrifty')
     else
       @manager.build_root # Don't expand the manager's build root
     end

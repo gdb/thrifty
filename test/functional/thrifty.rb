@@ -28,7 +28,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     end
 
     it_isolated 'build_root defaults to the thrift/thrifty directory' do
-      expected_root = File.expand_path('../_lib/thrift/thrifty', __FILE__)
+      expected_root = File.expand_path('../_lib/thrift/build-thrifty', __FILE__)
       FileUtils.rm_rf(expected_root)
 
       Thrifty.register('_lib/thrift/service.thrift', relative_to: __FILE__)
@@ -40,7 +40,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
 
     describe 'without relative_to' do
       it_isolated 'build_root defaults to Dir.tmpdir/thrifty' do
-        expected_root = File.join(Dir.tmpdir, 'thrifty')
+        expected_root = File.join(Dir.tmpdir, 'build-thrifty')
         FileUtils.rm_rf(expected_root)
 
         Thrifty.register(File.expand_path('../_lib/thrift/service.thrift', __FILE__))
