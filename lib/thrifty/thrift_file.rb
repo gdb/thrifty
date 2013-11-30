@@ -53,7 +53,12 @@ class Thrifty::ThriftFile
 
   def compile_once
     with_cache do
-      FileUtils.mkdir_p(build_directory)
+      begin
+        FileUtils.mkdir_p(build_directory)
+      rescue Errno::EACCES => e
+        e.message << ' (HINT: this probably means you forgot to precompile your Thrift file, or the relative path has changed between your build and deploy machines)'
+        raise e
+      end
       Rubysh('thrift', '--gen', 'rb', '-out', build_directory, path).check_call
     end
   end
@@ -63,10 +68,13 @@ class Thrifty::ThriftFile
   end
 
   def build_directory
-    # Use the basename for informational purposes, and the SHA1 for
-    # avoid collisions.
+    # Use the basename for informational purposes, and the SHA1 to avoid
+    # collisions.
+    #
+    # Use relative_path since that should be invariant across machines
+    # (i.e. once you've deployed the service).
     base = File.basename(path)
-    sha1 = Digest::SHA1.hexdigest(path)
+    sha1 = Digest::SHA1.hexdigest(relative_path)
     File.join(build_root, "#{base}-#{sha1}")
   end
 
