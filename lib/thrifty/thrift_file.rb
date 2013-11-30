@@ -53,7 +53,6 @@ class Thrifty::ThriftFile
     end
   end
 
-
   def version_file
     File.join(build_directory, 'VERSION')
   end
