@@ -5,6 +5,8 @@ require 'rubysh'
 class Thrifty::ThriftFile
   include Chalk::Log
 
+  DUMMY_DIRECTORY = File.expand_path('../dummy', __FILE__)
+
   attr_reader :relative_path, :options
 
   def initialize(manager, relative_path, options={})
@@ -28,21 +30,24 @@ class Thrifty::ThriftFile
 
   def require(generated_file)
     compile_once
-    $:.unshift(build_directory)
+
+    # This is a bit dicey, as a generated thrift <file> will also
+    # include <file>_types and <file>_constants as well as
+    # 'thrift'. We need to make sure we can handle file names that may
+    # have already been required -- this path munging should
+    # successfully do so.
+
+    super('thrift')
+
+    orig_load_path = $:.dup
 
     begin
-      log.info('Requiring', file: generated_file, idl: path)
+      $:[0..-1] = [build_directory, DUMMY_DIRECTORY]
+      log.info('Requiring', file: generated_file, idl: path, build_directory: build_directory)
       # Global require
       super(generated_file)
     ensure
-      # Not sure what to do if someone changed $: in the
-      # meanwhile. Could happen due a signal handler or something
-      # crazy like that.
-      if $:.first == build_directory
-        $:.shift
-      else
-        log.error('Unexpected first element in load path; not removing', build_directory: build_directory, load_path: $:.inspect)
-      end
+      $:[0..-1] = orig_load_path
     end
   end
 

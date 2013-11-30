@@ -6,6 +6,8 @@ require 'chalk-tools'
 # TODO: can we get by without quite so much rm -rf'ing?
 
 class Thrifty::DynamicTest < Critic::Functional::Test
+  DATA_DIR = File.expand_path('../_lib/thrift/data', __FILE__)
+
   def self.it_isolated(description, &blk)
     method = Chalk::Tools::ClassUtils.generate_method('test block', self, blk)
 
@@ -48,6 +50,18 @@ class Thrifty::DynamicTest < Critic::Functional::Test
         ThriftyTest::UserStorage
 
         assert(File.exists?(expected_root))
+      end
+
+      it_isolated 'allows thrift services with already-required names' do
+        FileUtils.mkdir_p(DATA_DIR)
+        File.write(File.join(DATA_DIR, 'collision.rb'), '# collision')
+        $:.unshift(DATA_DIR)
+        require 'collision'
+
+        Thrifty.register(File.expand_path('../_lib/thrift/collision.thrift', __FILE__))
+        required = Thrifty.require('collision')
+        assert(required)
+        ThriftyTest::Collision
       end
     end
   end
