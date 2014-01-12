@@ -42,7 +42,7 @@ class Thrifty::ThriftFile
     orig_load_path = $:.dup
 
     begin
-      $:[0..-1] = [build_directory, DUMMY_DIRECTORY]
+      $:[0..-1] = @manager.require_path + [DUMMY_DIRECTORY]
       log.info('Requiring', file: generated_file, idl: path, build_directory: build_directory)
       # Global require
       super(generated_file)
@@ -59,7 +59,8 @@ class Thrifty::ThriftFile
         e.message << ' (HINT: this probably means you forgot to precompile your Thrift file, or the relative path has changed between your build and deploy machines)'
         raise e
       end
-      Rubysh('thrift', '--gen', 'rb', '-out', build_directory, path).check_call
+      includes = @manager.include_path.map {|x| ['-I', x]}.flatten
+      Rubysh('thrift', *includes, '--gen', 'rb', '-out', build_directory, path).check_call
     end
   end
 

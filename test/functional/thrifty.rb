@@ -14,8 +14,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     it(description) do
       pid = fork do
         method.bind(self).call
-        # This is very lurky, but a natural exit always seems to return 1
-        exec('true')
+        exit!(true)
       end
       _, status = Process.waitpid2(pid)
       assert_equal(0, status.exitstatus)
@@ -24,7 +23,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
 
   describe 'without a build_root' do
     it_isolated 'can load the service' do
-      Thrifty.register('_lib/thrift/service.thrift', relative_to: __FILE__)
+      Thrifty.register('_lib/thrift/user_service.thrift', relative_to: __FILE__)
       Thrifty.require('user_storage')
       ThriftyTest::UserStorage
     end
@@ -33,11 +32,19 @@ class Thrifty::DynamicTest < Critic::Functional::Test
       expected_root = File.expand_path('../_lib/thrift/build-thrifty', __FILE__)
       FileUtils.rm_rf(expected_root)
 
-      Thrifty.register('_lib/thrift/service.thrift', relative_to: __FILE__)
+      Thrifty.register('_lib/thrift/user_service.thrift', relative_to: __FILE__)
       Thrifty.require('user_storage')
       ThriftyTest::UserStorage
 
       assert(File.exists?(expected_root))
+    end
+
+    it_isolated 'can handle included thrift files' do
+      Thrifty.register('_lib/thrift/user_service.thrift', relative_to: __FILE__)
+      Thrifty.register('_lib/thrift-includes/including.thrift', relative_to: __FILE__)
+
+      Thrifty.require('including_service')
+      IncludeThriftyTest::IncludingService
     end
 
     describe 'without relative_to' do
@@ -45,7 +52,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
         expected_root = File.join(Dir.tmpdir, 'build-thrifty')
         FileUtils.rm_rf(expected_root)
 
-        Thrifty.register(File.expand_path('../_lib/thrift/service.thrift', __FILE__))
+        Thrifty.register(File.expand_path('../_lib/thrift/user_service.thrift', __FILE__))
         Thrifty.require('user_storage')
         ThriftyTest::UserStorage
 
@@ -81,16 +88,16 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     end
 
     it_isolated 'sets paths appropriately' do
-      thrift_file = Thrifty.register('_lib/thrift/service.thrift',
+      thrift_file = Thrifty.register('_lib/thrift/user_service.thrift',
         relative_to: __FILE__,
         build_root: '_lib/thrift/thrifty')
-      assert_equal(File.expand_path('../_lib/thrift/service.thrift', __FILE__),
+      assert_equal(File.expand_path('../_lib/thrift/user_service.thrift', __FILE__),
         thrift_file.path)
       assert_equal(File.expand_path('../_lib/thrift/thrifty', __FILE__), thrift_file.build_root)
     end
 
     it_isolated 'can load the service' do
-      Thrifty.register('_lib/thrift/service.thrift',
+      Thrifty.register('_lib/thrift/user_service.thrift',
         relative_to: __FILE__,
         build_root: '_lib/thrift/thrifty')
       Thrifty.require('user_storage')
@@ -100,7 +107,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     end
 
     it_isolated 'builds a given thrift file once' do
-      Thrifty.register('_lib/thrift/service.thrift',
+      Thrifty.register('_lib/thrift/user_service.thrift',
         relative_to: __FILE__,
         build_root: '_lib/thrift/thrifty')
       results = Thrifty.compile_all
