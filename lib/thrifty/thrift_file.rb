@@ -42,7 +42,7 @@ class Thrifty::ThriftFile
     orig_load_path = $:.dup
 
     begin
-      $:[0..-1] = [build_directory, DUMMY_DIRECTORY]
+      $:[0..-1] = @manager.require_path + [DUMMY_DIRECTORY]
       log.info('Requiring', file: generated_file, idl: path, build_directory: build_directory)
       # Global require
       super(generated_file)

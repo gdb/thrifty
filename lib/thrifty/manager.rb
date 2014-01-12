@@ -43,4 +43,8 @@ class Thrifty::Manager
   def include_path
     @thrift_files.keys.map {|f| File.dirname(f)}.uniq
   end
+
+  def require_path
+    @thrift_files.values.map(&:build_directory).uniq
+  end
 end
