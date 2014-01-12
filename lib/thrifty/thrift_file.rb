@@ -59,7 +59,8 @@ class Thrifty::ThriftFile
         e.message << ' (HINT: this probably means you forgot to precompile your Thrift file, or the relative path has changed between your build and deploy machines)'
         raise e
       end
-      Rubysh('thrift', '--gen', 'rb', '-out', build_directory, path).check_call
+      includes = @manager.include_path.map {|x| ['-I', x]}.flatten
+      Rubysh('thrift', *includes, '--gen', 'rb', '-out', build_directory, path).check_call
     end
   end
 
