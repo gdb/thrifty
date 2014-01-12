@@ -14,8 +14,7 @@ class Thrifty::DynamicTest < Critic::Functional::Test
     it(description) do
       pid = fork do
         method.bind(self).call
-        # This is very lurky, but a natural exit always seems to return 1
-        exec('true')
+        exit!(true)
       end
       _, status = Process.waitpid2(pid)
       assert_equal(0, status.exitstatus)
