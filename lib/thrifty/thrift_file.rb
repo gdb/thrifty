@@ -43,7 +43,7 @@ class Thrifty::ThriftFile
 
     begin
       $:[0..-1] = @manager.require_path + [DUMMY_DIRECTORY]
-      log.info('Requiring', file: generated_file, idl: path, build_directory: build_directory)
+      log.debug('Requiring', file: generated_file, idl: path, build_directory: build_directory)
       # Global require
       super(generated_file)
     ensure
