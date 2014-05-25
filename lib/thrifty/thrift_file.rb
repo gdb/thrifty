@@ -38,12 +38,12 @@ class Thrifty::ThriftFile
     # successfully do so.
 
     super('thrift')
+    log.debug('Requiring', file: generated_file, idl: path, build_directory: build_directory)
 
     orig_load_path = $:.dup
 
     begin
       $:[0..-1] = @manager.require_path + [DUMMY_DIRECTORY]
-      log.debug('Requiring', file: generated_file, idl: path, build_directory: build_directory)
       # Global require
       super(generated_file)
     ensure
